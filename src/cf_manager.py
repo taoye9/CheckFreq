@@ -96,7 +96,6 @@ class CFManager:
 				mode = CFMode.AUTO,
 				chk_prefix = 'model_v_'):
 
-				self.logger = logging.getLogger(__name__)
 				self.chk_dir = chk_dir
 				self.chk = chk
 				self.keep_epoch_chk = keep_epoch_chk
@@ -132,9 +131,9 @@ class CFManager:
 				self.available_chk_epochs = self.mp_manager.list()
 				self.initalize_chk_dir()
 
-				self.logger.info("Available checkpoints : ")
+				print("Available checkpoints : ")
 				for item in self.available_chk_iters:
-					self.logger.info(item)
+					print(item)
 					
 
 		"""
@@ -160,7 +159,7 @@ class CFManager:
 			persist=False):
 
 				s = time.time()
-				self.logger.info("[{}] ENTER SAVE FN".format(time.time()))
+				print("[{}] ENTER SAVE FN".format(time.time()))
 				self.chk_global_id += 1
 				chk_fname = self.chk_prefix + str(self.chk_global_id)
 				filepath = self._get_full_path(chk_fname)
@@ -168,7 +167,7 @@ class CFManager:
 						chk_fname_link = self.chk_prefix + str(self.chk_global_id) + '_' +str(epoch) 
 						filepath_link = self._get_full_path(chk_fname, epoch=True)
 
-				self.logger.info("Writing chk {} at {}".format(self.chk_global_id, filepath))
+				print("Writing chk {} at {}".format(self.chk_global_id, filepath))
 
 
 				if synchronous:
@@ -204,7 +203,7 @@ class CFManager:
 								self.chk_process.join()
 
 				# Once complete, initiate the next checkpoint synchronously
-				self.logger.info("[{}] START SNAPSHOT".format(time.time()))
+				print("[{}] START SNAPSHOT".format(time.time()))
 				success = self.chk._snapshot(self.active_snapshot.value, additional_state=additional_snapshot)
 
 				if success:
@@ -241,9 +240,9 @@ class CFManager:
 						fn(target=self.chk._serialize_and_persist,\
 						args=[filepath, self.chk.latest_snapshot, self.active_snapshot, self.lock], kwargs=keywords)
 
-				self.logger.info("[{}] CALL PROCESS NOW".format(time.time()))
+				print("[{}] CALL PROCESS NOW".format(time.time()))
 				self.chk_process.start()
-				self.logger.info("[{}] RETURN FROM START".format(time.time()))
+				print("[{}] RETURN FROM START".format(time.time()))
 				
 				if profile_full:
 						self.chk_process.join()
@@ -266,7 +265,7 @@ class CFManager:
 			profile_snap=False,
 			profile_full=False,
 			use_thread=True):
-				self.logger.info("[{}] ENTER SAVE FN".format(time.time()))
+				print("[{}] ENTER SAVE FN".format(time.time()))
 
 				s = time.time()
 				self.chk_global_id += 1
@@ -276,7 +275,7 @@ class CFManager:
 						chk_fname_link = self.chk_prefix + str(self.chk_global_id) + '_' +str(epoch) 
 						filepath_link = self._get_full_path(chk_fname, epoch=True)
 
-				self.logger.info("Writing chk {} at {}".format(self.chk_global_id, filepath))
+				print("Writing chk {} at {}".format(self.chk_global_id, filepath))
 
 				# Check if there's an ongoing checkpoint operation
 				if self.chk_process is not None:
@@ -363,7 +362,7 @@ class CFManager:
 				if fname is None:
 					return None
 				filepath = self._get_full_path(fname, epoch=not latest)
-				self.logger.info("Latest checkpoint is {}".format(filepath))
+				print("Latest checkpoint is {}".format(filepath))
 				extra_state = self.chk._restore(filepath=filepath, gpu=gpu)
 				return extra_state
 
@@ -372,7 +371,7 @@ class CFManager:
 				if os.path.exists(self.chk_dir):
 						# Get list of all files
 						chk_files = [os.path.splitext(f)[0] for f in os.listdir(self.chk_dir) if isfile(os.path.join(self.chk_dir, f))]
-						self.logger.info(chk_files)
+						print(chk_files)
 						chk_files.sort(key=natural_keys)
 
 						for files in chk_files:
@@ -420,13 +419,12 @@ class CFManager:
 						s = time.time()
 						while self.in_progress_snapshot.value == 1:
 							continue
-#							self.logger.info("Progresssss")
 						optimizer.step()
 						#torch.cuda.synchronize()
 						dur = time.time() - s
-						#self.logger.info("Stall to weight update = {}s".format(dur))
+						print("Stall to weight update = {}s".format(dur))
 				else:	
-						self.logger.info("NO Optimizer found")
+						print("NO Optimizer found")
 
 		# Returns size of tensors of all tractable items in MB
 		@ property
